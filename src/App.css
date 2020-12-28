@@ -12,9 +12,20 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
-
+button {
+  background: rgb(121,180,58);
+  background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.2206015173410405) 50%, rgba(252,176,69,1) 100%);
+}
+button > span, p {
+  background: rgb(121,180,58);
+background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.2206015173410405) 50%, rgba(252,176,69,1) 100%);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
 .App-header {
-  background-color: #282c34;
+  /* background-color: #282c34; */
+
   min-height: 100vh;
   display: flex;
   flex-direction: column;
