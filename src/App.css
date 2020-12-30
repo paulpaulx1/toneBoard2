@@ -13,28 +13,42 @@
   }
 }
 button {
-  background: rgb(121,180,58);
-  background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.2206015173410405) 50%, rgba(252,176,69,1) 100%);
+  /* background: rgb(121,180,58);
+  background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.2206015173410405) 50%, rgba(252,176,69,1) 100%); */
 }
 button > span, p {
-  background: rgb(121,180,58);
-background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.2206015173410405) 50%, rgba(252,176,69,1) 100%);
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
+  /* background: rgb(121,180,58);
+background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.2206015173410405) 50%, rgba(252,176,69,1) 100%); */
+  /* display: flex; */
+  /* flex-direction: row; */
+  /* justify-content: space-between; */
+  /* align-items: stretch; */
 }
-.App-header {
+.flex-container {
   /* background-color: #282c34; */
-
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  flex-wrap: wrap;
+  align-content: stretch;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
+  margin: 20px
+ 
+  /* color: white; */
 }
+.flex-container button{
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+   color: rgba(134, 123, 123, 0.13); 
 
+  border:3px #ccc solid;
+
+  margin: 10px;
+  flex: 1,
+  /* display: flex;
+  flex-direction: column; */
+  /* align-content: space-between; */
+}
 .App-link {
   color: #61dafb;
 }
@@ -47,3 +61,4 @@ background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.22060
     transform: rotate(360deg);
   }
 }
+
