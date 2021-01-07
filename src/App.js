@@ -16,7 +16,6 @@ const ogState = {
   selectorOn: false,
   selectedClass: 'h1',
   printColors: false,
-  musicOn: false,
 }
 
 class App extends React.Component {
@@ -91,8 +90,9 @@ class App extends React.Component {
     return random;
   }
 
-  changeOneColor() {
+  changeOneColor(e) {
     // selectorOn = !selectorOn
+    // console.log('thisone', e.target)
     this.setState({
       ...this.state,
       selectorOn: !this.state.selectorOn,
@@ -112,16 +112,24 @@ class App extends React.Component {
     document.body.style.background = x;
   }
  
-  handleClick(e) {
-    this.truColor1 = document.getElementsByClassName('h1')[0].style.background
-    this.truColor2 = document.getElementsByClassName('h2')[0].style.background
-    this.truColor3 = document.getElementsByClassName('h3')[0].style.background
-    this.truColor4 = document.getElementsByClassName('h4')[0].style.background
-    this.truColor5 = document.getElementsByClassName('h5')[0].style.background
-    this.truColor6 = document.getElementsByClassName('h6')[0].style.background
-    console.log("buttons", document.getElementsByClassName('h1')[0].style.background)
+  async handleClick(e) {
+    console.log('thisone', e.target.style.background)
+    console.log('classname', e.target.className)
+    console.log(document.getElementsByClassName(e.target.className))
+    // for (let x of await document.getElementsByClassName(e.target.className)) {
+    //     x.innerText = e.target.style.background
+    // }
+    // e.target.innerText = document.getElementsByClassName(e.target.className).style.background
+    // console.log(document.getElementById('1').style.background)
+    // this.truColor1 = await document.getElementsByClassName('h1')[0].style.background
+    // this.truColor2 = await document.getElementsByClassName('h2')[0].style.background
+    // this.truColor3 = await document.getElementsByClassName('h3')[0].style.background
+    // this.truColor4 = document.getElementsByClassName('h4')[0].style.background
+    // this.truColor5 = document.getElementsByClassName('h5')[0].style.background
+    // this.truColor6 = document.getElementsByClassName('h6')[0].style.background
+    // console.log("buttons", document.getElementsByClassName('h1')[0].style.background)
     let randomNote = Math.floor(Math.random() * 7);
-    let otherRandom = Math.floor(Math.random() * 7)
+    // let otherRandom = Math.floor(Math.random() * 7)
 
     // const now = Tone.now();
     // synth.triggerAttackRelease([notes[otherRandom] + '4', '2n', now);
@@ -142,6 +150,9 @@ class App extends React.Component {
 
 
     if (this.state.selectorOn === true) {
+    //   for (let x of await document.getElementsByClassName(e.target.className)) {
+    //     x.innerText = e.target.style.background
+    // }
       const diffRandomColor = () => {
         return (
           '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)
@@ -153,6 +164,9 @@ class App extends React.Component {
       for (var button of selectedButtons) {
         button.style.background = x;
       }
+      for (let x of await document.getElementsByClassName(e.target.className)) {
+        x.innerText = e.target.style.background
+    }
     } else {
       const color = this.formatColor(
         this.state.red,
@@ -206,7 +220,8 @@ class App extends React.Component {
     const h5 = this.state.heights[4];
     const h6 = this.state.heights[5];
 
-    // this.truColor1 = document.getElementsByClassName('h1')[0].style.background
+    // this.oneone = document.getElementById('1').style.background
+   //this.truColor1 = document.getElementsByClassName('h1')[0].style.background
     // this.truColor2 = document.getElementsByClassName('h2')[0].style.background
     // this.truColor3 = document.getElementsByClassName('h3')[0].style.background
     // this.truColor4 = document.getElementsByClassName('h4')[0].style.background
@@ -218,7 +233,7 @@ class App extends React.Component {
     let oneSetOn = 'one set: on';
     // let backgroundPrint = document.body.style.background
     
-    console.log(zero);
+    // console.log(zero);
     return (
       <div className='App'>
         {' '}
@@ -283,13 +298,14 @@ class App extends React.Component {
             padding: '10px',
           }} 
           onClick={()=>this.setState(ogState)}>revert</button>
-
+        
         {this.state.printColors === false? <header className='flex-container'>
           <span>
             <button
               
               type='button'
               className='h1'
+              id='1'
               style={{ background: zero, height: h1 }}
               onClick={this.handleClick}
             >
@@ -691,6 +707,7 @@ class App extends React.Component {
               
               type='button'
               className='h1'
+              id='1'
               style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
               color: '#6e7070',
               WebkitTextStrokeColor: '#414241',
@@ -698,7 +715,7 @@ class App extends React.Component {
               FontWeight: '900', }}
               onClick={this.handleClick}
             >
-               {`${this.truColor1}`}
+              {zero}
             </button> 
             <button
               type='button'
