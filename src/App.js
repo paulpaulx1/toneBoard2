@@ -16,6 +16,7 @@ const ogState = {
   selectorOn: false,
   selectedClass: 'h1',
   printColors: false,
+  displayBackground: true
 }
 
 class App extends React.Component {
@@ -38,6 +39,8 @@ class App extends React.Component {
     this.changeOneColor = this.changeOneColor.bind(this);
     this.printColors = this.printColors.bind(this)
     this.stopMusic = this.stopMusic.bind(this)
+    this.formatColor = this.formatColor.bind(this)
+    this.changeBackgroundColor = this.changeBackgroundColor.bind(this)
     // this.truColor1 = document.getElementsByClassName('h1')[0].style.background
     // this.truColor2 = document.getElementsByClassName('h2')[0].style.background
     // this.truColor3 = document.getElementsByClassName('h3')[0].style.background
@@ -71,8 +74,13 @@ class App extends React.Component {
       this.state.green,
       this.state.blue,
       this.state.alpha
-    );
+    ); 
     document.body.style.background = color;
+    // this.setState({
+    //   ...this.state,
+    //   displayBackground: !this.state.displayBackground
+    // })
+   
   }
 
   randomizeValue() {
@@ -99,23 +107,38 @@ class App extends React.Component {
     });
   }
 
-  changeBackgroundColor() {
+  async changeBackgroundColor(e) {
     const now = Tone.now();
+    
     let randomNote = Math.floor(Math.random() * 7);
     synth.triggerAttackRelease(notes[randomNote] + '4', '2n', now);
     const diffRandomColor = () => {
       return (
         '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)
       );
-    };
-    let x = diffRandomColor();
+    };  
+    let x = await diffRandomColor();
     document.body.style.background = x;
+    if (this.state.printColors === true) {
+    // e.target.style.background = x
+    e.target.innerText = "background " + x
+    }
+   
+  
+    //   this.setState({
+    //   ...this.state,
+    //   displayBackground: !this.state.displayBackground
+    // })
+   
+    // document.getElementsByTagName('header').innerText = x
+
   }
  
   async handleClick(e) {
-    console.log('thisone', e.target.style.background)
-    console.log('classname', e.target.className)
-    console.log(document.getElementsByClassName(e.target.className))
+    console.log(document.body.style.background)
+    // console.log('thisone', e.target.style.background)
+    // console.log('classname', e.target.className)
+    // console.log(document.getElementsByClassName(e.target.className))
     // for (let x of await document.getElementsByClassName(e.target.className)) {
     //     x.innerText = e.target.style.background
     // }
@@ -200,7 +223,7 @@ class App extends React.Component {
   }
  
  stopMusic() {
-  Tone.Transport.stop();
+  console.log(Tone)
   }
   render() {
     
@@ -277,7 +300,7 @@ class App extends React.Component {
             padding: '10px',
           }}
         >
-          background
+         {this.state.printColors === false ? 'background' : 'background ' + document.body.style.background} 
         </button>
         <button onClick={this.printColors} style={{
             border: '3px #ccc solid',
@@ -700,8 +723,8 @@ class App extends React.Component {
 
 
 
-        <header className='flex-container'>
-          {document.body.style.background}
+        <header className='flex-container' id="x">
+          {/* {document.body.style.background} */}
           <span>
             <button
               
