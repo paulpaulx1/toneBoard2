@@ -1,24 +1,50 @@
 import './App.css';
 import * as Tone from 'tone';
 import React from 'react';
-import { ButtonSet } from './ButtonSet';
+import Modal from 'react-modal';
+import { nanoid } from 'nanoid';
+import MapTile from './MapTile'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import DragnDrop from './DragnDrop'
+
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+  },
+};
+
+const pant = require('nearest-pantone');
 
 const synth = new Tone.Synth().toDestination();
 const notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 const ogState = {
-  red: 220,
-  green: 220,
-  blue: 220,
+  red: 255,
+  green: 250,
+  blue: 250,
   alpha: 1,
   test: '',
-   colors: [],
-   heights: [],
+  colors: [
+    'transparent',
+    'transparent',
+    'transparent',
+    'transparent',
+    'transparent',
+    'transparent',
+  ],
+  heights: [],
   selectorOn: false,
   selectedClass: 'h1',
   printColors: false,
-  displayBackground: true
-}
-
+  pureColor: false,
+  modalIsOpen: false,
+  setIsOpen: false,
+};
+var subtitle;
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -28,35 +54,58 @@ class App extends React.Component {
       blue: 220,
       alpha: 1,
       test: '',
-      colors: [],
+      nameArray: ['clicky', 'clicky', 'HELLO', 'XYOJ', 'jjj', 'clicky'],
+      colors: [
+        'transparent',
+        'transparent',
+        'transparent',
+        'transparent',
+        'transparent',
+        'transparent',
+      ],
       heights: [],
       selectorOn: false,
       selectedClass: 'h1',
       printColors: false,
+      pureColor: false,
+      modalIsOpen: false,
+      setIsOpen: false,
+      clearPalettes: false,
     };
-
+    this.toggleModal = this.toggleModal.bind(this);
+    this.afterOpenModal = this.afterOpenModal.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.changeOneColor = this.changeOneColor.bind(this);
-    this.printColors = this.printColors.bind(this)
-    this.stopMusic = this.stopMusic.bind(this)
-    this.formatColor = this.formatColor.bind(this)
-    this.changeBackgroundColor = this.changeBackgroundColor.bind(this)
-    // this.truColor1 = document.getElementsByClassName('h1')[0].style.background
-    // this.truColor2 = document.getElementsByClassName('h2')[0].style.background
-    // this.truColor3 = document.getElementsByClassName('h3')[0].style.background
-    // this.truColor4 = document.getElementsByClassName('h4')[0].style.background
-    // this.truColor5 = document.getElementsByClassName('h5')[0].style.background
-    // this.truColor6 = document.getElementsByClassName('h6')[0].style.background
+    this.printColors = this.printColors.bind(this);
+    this.stopMusic = this.stopMusic.bind(this);
+    this.formatColor = this.formatColor.bind(this);
+    this.changeBackgroundColor = this.changeBackgroundColor.bind(this);
+    this.addButton = this.addButton.bind(this);
+    this.rgbToHex = this.rgbToHex.bind(this);
+    this.toggleColorPurity = this.toggleColorPurity.bind(this);
+    this.reducePalette = this.reducePalette.bind(this);
   }
 
-  async componentDidMount() {
-    await Tone.context.resume();
+  toggleModal() {
+    this.setState({ ...this.state, modalIsOpen: !this.state.modalIsOpen });
+  }
 
-    console.log('audio is ready');
+  afterOpenModal() {
+    // references are now sync'd and can be accessed.
+    subtitle.style.color = '#f00';
+  }
+  async reducePalette() {
+    await this.setState({
+      ...this.state,
+      colors: this.state.colors.pop(),
+    });
+  }
+  async componentDidMount() {
+    // await Tone.context.resume();
   }
 
   printColors() {
-    this.setState({printColors : ! this.state.printColors})
+    this.setState({ printColors: !this.state.printColors });
   }
 
   formatColor(r, g, b, a) {
@@ -74,13 +123,8 @@ class App extends React.Component {
       this.state.green,
       this.state.blue,
       this.state.alpha
-    ); 
+    );
     document.body.style.background = color;
-    // this.setState({
-    //   ...this.state,
-    //   displayBackground: !this.state.displayBackground
-    // })
-   
   }
 
   randomizeValue() {
@@ -99,97 +143,95 @@ class App extends React.Component {
   }
 
   changeOneColor(e) {
-    // selectorOn = !selectorOn
-    // console.log('thisone', e.target)
     this.setState({
       ...this.state,
       selectorOn: !this.state.selectorOn,
     });
   }
 
+  addButton() {
+    let x = this.randomizeHeight();
+    this.setState({
+      ...this.state,
+      colors: [...this.state.colors, 'transparent'],
+      heights: [this.state.heights, x],
+    });
+  }
+
+  rgbToHex(r, g, b) {
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  }
+
   async changeBackgroundColor(e) {
     const now = Tone.now();
-    
+
     let randomNote = Math.floor(Math.random() * 7);
     synth.triggerAttackRelease(notes[randomNote] + '4', '2n', now);
     const diffRandomColor = () => {
-      return (
-        '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)
-      );
-    };  
-    let x = await diffRandomColor();
-    document.body.style.background = x;
-    if (this.state.printColors === true) {
-    // e.target.style.background = x
-    e.target.innerText = "background " + x
-    }
-   
-  
-    //   this.setState({
-    //   ...this.state,
-    //   displayBackground: !this.state.displayBackground
-    // })
-   
-    // document.getElementsByTagName('header').innerText = x
-
-  }
- 
-  async handleClick(e) {
-    console.log(document.body.style.background)
-    // console.log('thisone', e.target.style.background)
-    // console.log('classname', e.target.className)
-    // console.log(document.getElementsByClassName(e.target.className))
-    // for (let x of await document.getElementsByClassName(e.target.className)) {
-    //     x.innerText = e.target.style.background
-    // }
-    // e.target.innerText = document.getElementsByClassName(e.target.className).style.background
-    // console.log(document.getElementById('1').style.background)
-    // this.truColor1 = await document.getElementsByClassName('h1')[0].style.background
-    // this.truColor2 = await document.getElementsByClassName('h2')[0].style.background
-    // this.truColor3 = await document.getElementsByClassName('h3')[0].style.background
-    // this.truColor4 = document.getElementsByClassName('h4')[0].style.background
-    // this.truColor5 = document.getElementsByClassName('h5')[0].style.background
-    // this.truColor6 = document.getElementsByClassName('h6')[0].style.background
-    // console.log("buttons", document.getElementsByClassName('h1')[0].style.background)
-    let randomNote = Math.floor(Math.random() * 7);
-    // let otherRandom = Math.floor(Math.random() * 7)
-
-    // const now = Tone.now();
-    // synth.triggerAttackRelease([notes[otherRandom] + '4', '2n', now);
-    const synth = new Tone.PolySynth().toDestination();
-    // set the attributes across all the voices using 'set'
-    synth.set({ detune: -200 });
-    // play a chord
-    synth.triggerAttackRelease([notes[randomNote]+'3.9', notes[randomNote]+'3.5'], 1);
-    // synth.triggerAttackRelease([notes[randomNote]+'5', notes[randomNote]+'4', notes[randomNote]+'3'], 1);
-//     // const xx = new Tone.Synth().toDestination();
-// const seq = new Tone.Sequence((time, note) => {
-// 	synth.triggerAttackRelease(note, 0.1, time);
-// 	// subdivisions are given as subarrays
-// }, [notes[randomNote]+`4`, ["A4", notes[otherRandom]+"4"]]).start(0);
-
-// Tone.Transport.start("+.2", "4:0:0");
-// Tone.Transport.stop("+1")
-
-
-    if (this.state.selectorOn === true) {
-    //   for (let x of await document.getElementsByClassName(e.target.className)) {
-    //     x.innerText = e.target.style.background
-    // }
-      const diffRandomColor = () => {
+      if (this.state.pureColor === true) {
         return (
           '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)
         );
+      } else {
+        return (
+          '#' +
+          (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6) +
+          Math.floor(Math.random() * 100).toString()
+        );
+      }
+    };
+    let x = await diffRandomColor();
+    document.body.style.background = x;
+    if (this.state.printColors === true) {
+      e.target.innerText = 'background ' + x;
+    }
+  }
+
+  toggleColorPurity() {
+    this.setState({
+      ...this.state,
+      pureColor: !this.state.pureColor,
+    });
+  }
+  async handleClick(e) {
+    let randomNote = Math.floor(Math.random() * 7);
+    const synth = new Tone.PolySynth().toDestination();
+    synth.set({ detune: -200 });
+    synth.triggerAttackRelease([notes[randomNote] + '3.5'], 1);
+    if (this.state.selectorOn === true) {
+      const diffRandomColor = () => {
+        if (this.pureColor === false) {
+          return (
+            '#' +
+            (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6) +
+            Math.floor(Math.random() * 100).toString()
+          );
+        } else {
+          return (
+            '#' +
+            (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)
+          );
+        }
       };
       let selectedButtons = document.getElementsByClassName(e.target.className);
 
       let x = diffRandomColor();
+
       for (var button of selectedButtons) {
         button.style.background = x;
-      }
+        // this.setState({
+        //   ...this.state,
+        //   colors: this.state.colors.splice(
+        //     1,
+        //     Number(e.target.className.substr(1)),
+        //     x
+        //   ),
+        };
+      
+
       for (let x of await document.getElementsByClassName(e.target.className)) {
-        x.innerText = e.target.style.background
-    }
+        x.innerText = e.target.style.background;
+      }
     } else {
       const color = this.formatColor(
         this.state.red,
@@ -197,14 +239,24 @@ class App extends React.Component {
         this.state.blue,
         this.state.alpha
       );
-
-      this.setState({
-        ...this.state,
-        green: this.randomizeValue(),
-        red: this.randomizeValue(),
-        blue: this.randomizeValue(),
-        alpha: (this.randomizeValue() / 256).toFixed(2),
-      });
+      if (this.state.pureColor === false) {
+        this.setState({
+          ...this.state,
+          green: this.randomizeValue(),
+          red: this.randomizeValue(),
+          blue: this.randomizeValue(),
+          alpha: (this.randomizeValue() / 256).toFixed(2),
+        });
+      }
+      if (this.state.pureColor === true) {
+        this.setState({
+          ...this.state,
+          green: this.randomizeValue(),
+          red: this.randomizeValue(),
+          blue: this.randomizeValue(),
+          alpha: 1,
+        });
+      }
       this.applyColor();
 
       if (this.state.colors.length < 6) {
@@ -221,1095 +273,240 @@ class App extends React.Component {
       }
     }
   }
- 
- stopMusic() {
-  console.log(Tone)
+
+  clearPalettes() {
+    localStorage.clear();
+    this.setState({ clearPalettes: !this.state.clearPalettes });
+  }
+//  onDragUpdate = update => {
+//     if(!update.destination){
+//       return;
+//     }
+// 		const draggableId = update.draggableId;
+// 		const destinationIndex = update.destination.index;
+
+// 		const domQuery = `[${queryAttr}='${draggableId}']`;
+// 		const draggedDOM = document.querySelector(domQuery);
+
+// 		if (!draggedDOM) {
+// 			return;
+//     }
+//   }
+onDragEnd(result) {
+  // dropped outside the list
+  if (!result.destination) {
+    return;
+  }
+}
+
+  stopMusic() {
+    console.log(Tone);
   }
   render() {
-    
-    const zero = this.state.colors[0];
-    const one = this.state.colors[1];
-    const two = this.state.colors[2];
-    const three = this.state.colors[3];
-    const four = this.state.colors[4];
-    const five = this.state.colors[5];
-
     const height = this.randomizeHeight();
-
-    const h1 = this.state.heights[0];
-    const h2 = this.state.heights[1];
-    const h3 = this.state.heights[2];
-    const h4 = this.state.heights[3];
-    const h5 = this.state.heights[4];
-    const h6 = this.state.heights[5];
-
-    // this.oneone = document.getElementById('1').style.background
-   //this.truColor1 = document.getElementsByClassName('h1')[0].style.background
-    // this.truColor2 = document.getElementsByClassName('h2')[0].style.background
-    // this.truColor3 = document.getElementsByClassName('h3')[0].style.background
-    // this.truColor4 = document.getElementsByClassName('h4')[0].style.background
-    // this.truColor5 = document.getElementsByClassName('h5')[0].style.background
-    // this.truColor6 = document.getElementsByClassName('h6')[0].style.background
-
-  
+    const heights = this.state.heights;
+    const colors = this.state.colors;
     let oneSetOff = 'one set: off';
     let oneSetOn = 'one set: on';
-    // let backgroundPrint = document.body.style.background
+    const colorMap = colors.map((color, index) => (
+      <button
+        type='button'
+        key={index}
+        className={`h${index + 1}`}
+        style={{
+          background: color,
+          height: heights[index],
+          width: heights[index - 1],
+        }}
+        onClick={this.handleClick}
+      >
+        {this.state.printColors === true ? (
+          <>{color}</>
+        ) : (
+          `${this.state.nameArray[index]}`
+        )}
+      </button>
+    ));
+
+    let styleObj = {
+      border: '3px #ccc solid',
+      margin: '10px',
+      background: 'transparent',
+      WebkitTextStrokeWidth: '1px',
+      color: '#292929c0',
+      WebkitTextStrokeColor: '#414241',
+      padding: '10px',
+    };
+
+    let stripeMap = colors.map((color, index) => (
+      <div
+        key={nanoid}
+        style={{
+          background: color,
+          height: 50,
+          color: 'rgba(63, 63, 63, 0.884)',
+          fontFamily: 'Gill Sans',
+        }}
+      >{`${color}`}</div>
+    ));
+    const localMap = Object.values(localStorage).slice().map((palette, index) =>
     
-    // console.log(zero);
+    <DragDropContext >
+        <Droppable droppableId="characters">
+        {(provided, snapshot) => (
+    <div className="mapholder"  {...provided.droppableProps} 	ref={provided.innerRef}>
+
+     {palette.split('),').map((color, i) => (
+       i !== 5 ? 
+          <Draggable key={nanoid()} draggableId={nanoid()} index={i} > 
+          {(provided, snapshot) =>
+          <div
+            key={nanoid()}
+           ref={provided.innerRef}
+            classname='stripemaps'
+            style={{
+           
+              background: `${color})`,
+            }}
+          >
+            {Object.keys(localStorage)[index]}<br/>{`${color})`}
+        
+          </div>}</Draggable>
+          :   
+          <Draggable key={nanoid()} draggableId={nanoid()} index={i} >
+             {(provided, snapshot) =><div
+          key={nanoid()}
+    
+          classname='stripemaps'
+          style={{
+            
+            background: `${color}`,
+          }}
+        >
+          {Object.keys(localStorage)[index]}<br/>{`${color}`}
+      
+        </div>}</Draggable>
+        
+    ))}  </div>)}
+    </Droppable>
+    </DragDropContext>
+ 
+    );
+
     return (
       <div className='App'>
-        {' '}
-        <button
-          className='changeOneColor'
-          onClick={this.changeOneColor}
-          style={{
-            border: '3px #ccc solid',
-            margin: '10px',
-            background: 'transparent',
-            WebkitTextStrokeWidth: '1px',
-            color: '#6e7070',
-            WebkitTextStrokeColor: '#414241',
-            padding: '10px',
-            FontWeight: '900',
-          }}
+        {/* <button style={styleObj} onClick={this.toggleModal}>
+          about
+        </button> */}
+        <Modal
+          isOpen={this.state.modalIsOpen}
+          onAfterOpen={this.afterOpenModal}
+          onRequestClose={this.toggleModal}
+          style={{ background: document.body.style.background }}
+          contentLabel='Example Modal'
         >
-          {this.state.selectorOn === true ? oneSetOn : oneSetOff}
-        </button>
-        <button  className='changeOneColor'
-          onClick={this.stopMusic}
-          style={{
-            border: '3px #ccc solid',
-            margin: '10px',
-            background: 'transparent',
-            WebkitTextStrokeWidth: '1px',
-            color: '#6e7070',
-            WebkitTextStrokeColor: '#414241',
-            padding: '10px',}}>
-            shhhhh</button>
-        <button
-          className='changeOneColor'
-          onClick={this.changeBackgroundColor}
-          style={{
-            border: '3px #ccc solid',
-            margin: '10px',
-            background: 'transparent',
-            WebkitTextStrokeWidth: '1px',
-            color: '#6e7070',
-            WebkitTextStrokeColor: '#414241',
-            padding: '10px',
-          }}
-        >
-         {this.state.printColors === false ? 'background' : 'background ' + document.body.style.background} 
-        </button>
-        <button onClick={this.printColors} style={{
-            border: '3px #ccc solid',
-            margin: '10px',
-            background: 'transparent',
-            WebkitTextStrokeWidth: '1px',
-            color: '#6e7070',
-            WebkitTextStrokeColor: '#414241',
-            padding: '10px',
-          }}>print colors</button>
-          <button style={{
-            border: '3px #ccc solid',
-            margin: '10px',
-            background: 'transparent',
-            WebkitTextStrokeWidth: '1px',
-            color: '#6e7070',
-            WebkitTextStrokeColor: '#414241',
-            padding: '10px',
-          }} 
-          onClick={()=>this.setState(ogState)}>revert</button>
-        
-        {this.state.printColors === false? <header className='flex-container'>
-          <span>
-            <button
-              
-              type='button'
-              className='h1'
-              id='1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-        
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1 }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height }}
-              onClick={this.handleClick}
-            >
-              clicky
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height }}
-              onClick={this.handleClick}
-            >
-              HELLO
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4 }}
-              onClick={this.handleClick}
-            >
-              X
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height }}
-              onClick={this.handleClick}
-            >
-              YO
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6 }}
-              onClick={this.handleClick}
-            >
-              Jjjj
-            </button>
-          </span>
-        </header> 
-        
-        
-        
-        
-        :
+          <h2 ref={(_subtitle) => (subtitle = _subtitle)}>
+          </h2>
 
-
-
-
-
-        <header className='flex-container' id="x">
-          {/* {document.body.style.background} */}
-          <span>
+          <div className='ModalStripeView'>{stripeMap}</div>
+          <form>
+            name palette :)
+            <input id='textbox_id' />
             <button
-              
-              type='button'
-              className='h1'
-              id='1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
+              style={{ background: 'transparent' }}
+              onClick={()=>localStorage.setItem(document.getElementById('textbox_id').value, this.state.colors)}
             >
-              {zero}
+              save palette
             </button> 
             <button
               type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
+              key={nanoid()}
+              // className={`h${index + 1}`}
+              style={{
+                background: 'transparent',
+                // height: heights[index],
+                // width: heights[index - 1],
+              }}
               onClick={this.handleClick}
             >
-              {one}
+              new color
             </button>
             <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
+              style={{ background: 'transparent' }}
+              onClick={this.toggleModal}
             >
-              {two}
+              close
             </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-        
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-             {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-            <button
-              type='button'
-              className='h1'
-              style={{ background: zero, height: h1, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {zero}
-            </button>
-            <button
-              type='button'
-              className='h2'
-              style={{ background: one, height: h2, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {one}
-            </button>
-            <button
-              type='button'
-              className='h3'
-              style={{ background: two, height: h3, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {two}
-            </button>
-            <button
-              type='button'
-              className='h4'
-              style={{ background: three, height: h4, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {three}
-            </button>
-            <button
-              type='button'
-              className='h5'
-              style={{ background: four, height: h5, width: height, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {four}
-            </button>
-            <button
-              type='button'
-              className='h6'
-              style={{ background: five, height: h6, WebkitTextStrokeWidth: '1px',
-              color: '#6e7070',
-              WebkitTextStrokeColor: '#414241',
-              padding: '10px',
-              FontWeight: '900', }}
-              onClick={this.handleClick}
-            >
-              {five}
-            </button>
-          </span>
-        </header>}
+          </form>
+        </Modal>
+        <button style={styleObj} onClick={this.toggleModal}>
+          save palette
+        </button>
+        <button
+          className='changeOneColor'
+          onClick={this.changeOneColor}
+          style={styleObj}
+        >
+          {this.state.selectorOn === true ? oneSetOn : oneSetOff}
+        </button>
+        <button
+          className='changeOneColor'
+          onClick={this.toggleColorPurity}
+          style={styleObj}
+        >
+          {this.state.pureColor === false ? 'translucent' : 'opaque'}
+        </button>
+        <button
+          className='changeOneColor'
+          onClick={this.addButton}
+          style={styleObj}
+        >
+          add button
+        </button>
+        <button
+          className='changeOneColor'
+          onClick={this.reducePalette}
+          style={styleObj}
+        >
+          reduce palette
+        </button>
+        <button
+          className='changeOneColor'
+          onClick={this.changeBackgroundColor}
+          style={styleObj}
+        >
+          {this.state.printColors === false
+            ? 'background'
+            : 'background ' + document.body.style.background}
+        </button>
+        <button onClick={this.printColors} style={styleObj}>
+          print colors
+        </button>
+        <button style={styleObj} onClick={() => this.clearPalettes()}>
+          clear palettes
+        </button>
+
+        <header className='flex-container'>
+          <div>
+            {colorMap}
+            {colorMap}
+            {colorMap}
+            {colorMap}
+            {colorMap}
+            {colorMap}
+            {colorMap}
+          </div>
+        </header>
+        <div className="mapflex">
+        <div >
+          <DragnDrop colors={this.state.colors}/>
+          {localMap}
+          </div>
+      
+        </div>
       </div>
     );
   }
 }
-
+Modal.setAppElement(document.body);
 export default App;
