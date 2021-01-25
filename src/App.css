@@ -82,12 +82,12 @@ border: var(--outline);
   border: 3px ccc solid;
   position: relative;
 
-
-  border: 3px ccc solid;
+  padding: 10px;
+  
   display: grid;
   grid-template-columns: repeat(3, .1fr);
   width: .5fr;
-
+border: 3px ccc solid;
   /* border: 3px ccc solid; */
 
 }

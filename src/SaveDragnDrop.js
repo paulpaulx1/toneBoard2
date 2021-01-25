@@ -47,7 +47,7 @@ const queryAttr = "data-rbd-drag-handle-draggable-id";
 
 export default function App ( props ) {
 	const [placeholderProps, setPlaceholderProps] = useState({});
-	const [items, setItems] = useState(getItems(6));
+	const [items, setItems] = useState(getItems(props.grid));
     const notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
     let randomNote = Math.floor(Math.random() * 7);
 	const onDragEnd = result => {

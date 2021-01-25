@@ -71,6 +71,7 @@ class App extends React.Component {
       modalIsOpen: false,
       setIsOpen: false,
       clearPalettes: false,
+      reduce: false,
     };
     this.toggleModal = this.toggleModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
@@ -94,11 +95,18 @@ class App extends React.Component {
     // references are now sync'd and can be accessed.
     subtitle.style.color = '#f00';
   }
-  async reducePalette() {
+  async reducePalette(e) {
+    let tempReduce = this.state.colors
+    tempReduce.splice(Number(e.target.className), 1, 'transparent')
     await this.setState({
       ...this.state,
-      colors: this.state.colors.pop(),
+      colors: tempReduce,
     });
+    //let tempArray = this.state.colors
+    //tempArray.splice(Number(e.target.className), 1, `${e.target.style.background}`)
+    //console.log(tempArray)
+    // console.log(this.state.colors.splice(Number(e.target.className), 1, 'HELLO'))
+    //this.setState({...this.state, colors: tempArray})
   }
   async componentDidMount() {
     // await Tone.context.resume();
@@ -265,6 +273,16 @@ class App extends React.Component {
         });
       }
       this.applyColor();
+      if (this.state.reduce === true) {
+        let tempReduce = this.state.colors
+        tempReduce.splice(Number(e.target.className), 1)
+        await this.setState({
+          ...this.state,
+          colors: tempReduce,
+          reduce: !this.state.reduce
+        })
+
+      }
 
       if (this.state.colors.length < 6) {
         this.state.colors.push(color);
@@ -341,7 +359,7 @@ class App extends React.Component {
     const localMap = Object.values(localStorage).slice().map((palette, index) =>
     
     
-    <div className="mapholder" key={nanoid()}  >
+    <div className="mapholder"  key={nanoid()}  >
 
      {palette.split('),').map((color, i) => (
        i !== 5 ? 
@@ -392,7 +410,7 @@ class App extends React.Component {
           <h2 ref={(_subtitle) => (subtitle = _subtitle)}>
           </h2>
 
-          <div className='ModalStripeView'><DragnDrop colors={this.state.colors}/></div>
+          <div className='ModalStripeView'><DragnDrop colors={this.state.colors} grid={this.state.colors.length}/></div>
           <form>
             name palette :)
             <input id='textbox_id' />
@@ -438,7 +456,7 @@ class App extends React.Component {
           onClick={this.toggleColorPurity}
           style={styleObj}
         >
-          {this.state.pureColor === false ? 'translucent' : 'opaque'}
+          {this.state.pureColor === false ? 'TRANSLUCENT/opaque' : 'OPAQUE/translucent'}
         </button>
         <button
           className='changeOneColor'
@@ -449,7 +467,7 @@ class App extends React.Component {
         </button>
         <button
           className='changeOneColor'
-          onClick={this.reducePalette}
+          onClick={()=>this.setState({...this.state, reduce: !this.state.reduce})}
           style={styleObj}
         >
           reduce palette
@@ -493,7 +511,10 @@ class App extends React.Component {
           {/* <DragnDrop colors={this.state.colors}/> */}
           <div/>
           <div className="mapflex">
-            <DragnDrop colors={localStorage.getItem(0)}/>
+            
+        {Object.values(localStorage).map((colorArray, index)=> <DragnDrop colors={colorArray.split('),').map((color, i)=>
+        i === colorArray.split('),').length -1? color : color+=")")} key={nanoid()} />)
+  }
           {localMap}
    
           </div>
