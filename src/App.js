@@ -313,8 +313,8 @@ class App extends React.Component {
     const height = this.randomizeHeight();
     const heights = this.state.heights;
     const colors = this.state.colors;
-    let oneSetOff = 'one set: off';
-    let oneSetOn = 'one set: on';
+    // let oneSetOff = 'one set: off';
+    // let oneSetOn = 'one set: on';
     const colorMap = colors.map((color, index) => (
       <button
         type='button'
@@ -449,7 +449,7 @@ class App extends React.Component {
           onClick={this.changeOneColor}
           style={styleObj}
         >
-          {this.state.selectorOn === true ? oneSetOn : oneSetOff}
+          {this.state.selectorOn === true ? 'CHANGE ONE COLOR/cycle color' : 'CYCLE COLOR/change one color'}
         </button>
         <button
           className='changeOneColor'
