@@ -79,6 +79,10 @@ border: var(--outline);
 
 }
 
+.dragger {
+  width: 100%
+}
+
 
 
 

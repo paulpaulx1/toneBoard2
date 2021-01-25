@@ -399,6 +399,7 @@ onDragEnd(result) {
           about
         </button> */}
         <Modal
+          colors={this.state.colors}
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
           onRequestClose={this.toggleModal}
@@ -408,7 +409,7 @@ onDragEnd(result) {
           <h2 ref={(_subtitle) => (subtitle = _subtitle)}>
           </h2>
 
-          <div className='ModalStripeView'>{stripeMap}</div>
+          <div className='ModalStripeView'><DragnDrop colors={this.state.colors}/></div>
           <form>
             name palette :)
             <input id='textbox_id' />
@@ -489,17 +490,19 @@ onDragEnd(result) {
         <header className='flex-container'>
           <div>
             {colorMap}
+            {/* {colorMap}
             {colorMap}
             {colorMap}
             {colorMap}
             {colorMap}
-            {colorMap}
-            {colorMap}
+            {colorMap} */}
           </div>
         </header>
-        <div className="mapflex">
-        <div >
+        
+        <div className="dragboiz">
           <DragnDrop colors={this.state.colors}/>
+          <div/>
+          <div className="mapflex">
           {localMap}
           </div>
       

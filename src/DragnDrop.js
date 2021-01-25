@@ -1,6 +1,7 @@
 import React, { Component, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import * as Tone from 'tone';
 
 // fake data generator
 const getItems = count =>
@@ -24,8 +25,9 @@ const getItemStyle = (isDragging, draggableStyle, colors, index) => ({
 	// some basic styles to make the items look a bit nicer
 	userSelect: "none",
 	padding: grid * 2,
-	margin: `0 0 ${grid}px 0`,
-
+    margin: `0 0 ${grid}px 0`,
+    width: '100%',
+    border: '3px ccc',
 	// change background colour if dragging
 	background: colors[index],
 
@@ -45,7 +47,8 @@ const queryAttr = "data-rbd-drag-handle-draggable-id";
 export default function App ( props ) {
 	const [placeholderProps, setPlaceholderProps] = useState({});
 	const [items, setItems] = useState(getItems(6));
-
+    const notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
+    let randomNote = Math.floor(Math.random() * 7);
 	const onDragEnd = result => {
 		// dropped outside the list
 		if (!result.destination) {
@@ -53,7 +56,10 @@ export default function App ( props ) {
 		}
 
     setPlaceholderProps({})
-		setItems(items => reorder(items, result.source.index, result.destination.index));
+        setItems(items => reorder(items, result.source.index, result.destination.index));
+        const synth = new Tone.PolySynth().toDestination();
+        synth.set({ detune: -200 });
+        synth.triggerAttackRelease([notes[randomNote] + '4'], .2);
 	};
 
 	const onDragUpdate = update => {
@@ -84,7 +90,10 @@ export default function App ( props ) {
 			clientWidth,
       clientY,
       clientX: parseFloat(window.getComputedStyle(draggedDOM.parentNode).paddingLeft)
-		});
+        });
+        const synth = new Tone.PolySynth().toDestination();
+        synth.set({ detune: -200 });
+        synth.triggerAttackRelease([notes[randomNote] + '4'], .2);
 	};
 
 	// Normally you would want to split things out into separate components.
@@ -102,7 +111,7 @@ export default function App ( props ) {
 						{items.map((item, index) => (
 							<Draggable colors={props.colors} key={item.id} draggableId={item.id} index={index}>
 								{(provided, snapshot) => (
-									<div
+									<div className="dragger"
 										ref={provided.innerRef}
 										{...provided.draggableProps}
 										{...provided.dragHandleProps}
@@ -110,10 +119,12 @@ export default function App ( props ) {
 											snapshot.isDragging,
                                             provided.draggableProps.style,
                                             props.colors,
-                                            index
-										)}
+                                            index,
+                                          
+                                        )
+                                    }
 									>
-										{item.content}
+										{props.colors[index]}
 									</div>
 								)}
 							</Draggable>
