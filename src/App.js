@@ -279,7 +279,7 @@ class App extends React.Component {
         await this.setState({
           ...this.state,
           colors: tempReduce,
-          reduce: !this.state.reduce
+          
         })
 
       }
@@ -470,7 +470,7 @@ class App extends React.Component {
           onClick={()=>this.setState({...this.state, reduce: !this.state.reduce})}
           style={styleObj}
         >
-          reduce palette
+          {this.state.reduce === false ? 'remove color: off' : 'remove color: on'}
         </button>
         <button
           className='changeOneColor'
@@ -488,9 +488,11 @@ class App extends React.Component {
           clear palettes
         </button>
 
-        <header className='flex-container'>
+        <header className='flex-container'>   
           <div className='flex-boi'>
-          <DragnDrop colors={this.state.colors} className='badboi' />
+      
+          <DragnDrop colors={this.state.colors} className='badboi' >DRAG AND DROP</DragnDrop>
+          
           <div className='doublebadboi' >
             {colorMap}
             {colorMap}
@@ -511,9 +513,9 @@ class App extends React.Component {
           {/* <DragnDrop colors={this.state.colors}/> */}
           <div/>
           <div className="mapflex">
-            <div></div>
-        {Object.values(localStorage).map((colorArray, index)=> <>HELLOOOO <DragnDrop colors={colorArray.split('),').map((color, i)=>
-        i === colorArray.split('),').length -1? color : color+=")")} key={nanoid()} />HELLLOOOOOOO</>)
+            {/* <div></div> */}
+        {Object.values(localStorage).map((colorArray, index)=> <> <DragnDrop colors={colorArray.split('),').map((color, i)=>
+        i === colorArray.split('),').length -1? color : color+=")")} key={nanoid()} /></>)
   }<div/>
           {localMap}
    

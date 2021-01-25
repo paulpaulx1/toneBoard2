@@ -2,21 +2,31 @@ import React, { Component, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import * as Tone from 'tone';
+import { nanoid } from 'nanoid';
+
+
+// model.id = nanoid() //=> "4f90d13a42"
 
 // fake data generator
-const getItems = count =>
+const getItems = 
+count =>
 	Array.from({ length: count }, (v, k) => k).map(k => ({
 		id: `item-${k}`,
 		content: `item ${k}`
-	}));
+    }));
+    
+
 
 // a little function to help us with reordering the result
 const reorder = (list, startIndex, endIndex) => {
+    console.log(list, startIndex, endIndex)
 	const result = Array.from(list);
 	const [removed] = result.splice(startIndex, 1);
 	result.splice(endIndex, 0, removed);
-
-	return result;
+    console.log(result)
+    // list = result
+    return result;
+    
 };
 
 const grid = 8;
@@ -30,8 +40,8 @@ const getItemStyle = (isDragging, draggableStyle, colors, index) => ({
     border: '3px ccc',
 	// change background colour if dragging
 	background: colors[index],
-    width: 300,
-    marginRight: 50,
+    width: 220,
+    // marginRight: 200,
 	// styles we need to apply on draggables
 	...draggableStyle
 });
@@ -40,14 +50,18 @@ const getListStyle = isDraggingOver => ({
 	background: 'transparent',
 	padding: grid,
   width: 250,
-  position: "relative"
+//   position: "relative"
 });
 
 const queryAttr = "data-rbd-drag-handle-draggable-id";
 
 export default function App ( props ) {
 	const [placeholderProps, setPlaceholderProps] = useState({});
-	const [items, setItems] = useState(getItems(6));
+    const [items, setItems] = useState(getItems(props.colors ? props.colors.length : 6));
+    const [colors, setColors] = useState(props.colors)
+    // useEffect(() => {
+    //    props.color
+    //   });
     const notes = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
     let randomNote = Math.floor(Math.random() * 7);
 	const onDragEnd = result => {
@@ -57,7 +71,9 @@ export default function App ( props ) {
 		}
 
     setPlaceholderProps({})
-        setItems(items => reorder(items, result.source.index, result.destination.index));
+        setItems(items => reorder( items, result.source.index, result.destination.index));
+        setColors(colors => reorder(colors, result.source.index, result.destination.index))
+       
         const synth = new Tone.PolySynth().toDestination();
         synth.set({ detune: -200 });
         synth.triggerAttackRelease([notes[randomNote] + '4'], .2);
@@ -101,20 +117,20 @@ export default function App ( props ) {
 	// But in this example everything is just done in one place for simplicity
 	return (
         props.colors ?
-		<DragDropContext colors={props.colors} onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
-			<Droppable colors={props.colors} droppableId="droppable">
+		<DragDropContext  colors={props.colors} onDragEnd={onDragEnd} onDragUpdate={onDragUpdate} setColors={props.colors}>
+			<Droppable colors={props.colors} setColors={props.colors} droppableId="droppable" >
 				{(provided, snapshot) => (
-					<div
+					<div 
 						{...provided.droppableProps}
 						ref={provided.innerRef}
                         style={getListStyle(snapshot.isDraggingOver)}
                         
 					>
-                        drag... drop  {Object.values(localStorage).map((color, index)=>props.colors.join() === color ? Object.keys(localStorage)[index] :console.log(color, props.colors))}
+                        {Object.values(localStorage).map((color, index)=>props.colors.join() === color ? Object.keys(localStorage)[index] : null)}
 						{items.map((item, index) => (
                            
-                            <>
-							<Draggable colors={props.colors} key={item.id} draggableId={item.id} index={index}>
+                            <div style={{background: 'transparent', fontWeight: 20}}>
+							<Draggable colors={props.colors} key={item.id} draggableId={item.id} index={index} setColors={props.colors}>
 								{(provided, snapshot) => (
 									<div className="dragger"
 										ref={provided.innerRef}
@@ -133,9 +149,10 @@ export default function App ( props ) {
 									</div>
 								)}
 							</Draggable>
-                            </>
+                            
+                            </div>
 						))}
-
+{/* <button type="button" onClick={localStorage.removeItem(Object.values(localStorage).map((color, index)=>props.colors.join() === color ? localStorage[Object.keys(localStorage)[index]] : console.log(color)))} /> */}
 						{provided.placeholder}
             {/* <CustomPlaceholder snapshot={snapshot} /> */}
             <div style={{

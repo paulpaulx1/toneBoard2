@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import * as Tone from 'tone';
 
+
 // fake data generator
 const getItems = count =>
 	Array.from({ length: count }, (v, k) => k).map(k => ({
@@ -102,7 +103,7 @@ export default function App ( props ) {
 	return (
         props.colors ?
 		<DragDropContext colors={props.colors} onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
-			<Droppable colors={props.colors} droppableId="droppable">
+			<Droppable key={nanoid()} colors={props.colors} droppableId="droppable">
 				{(provided, snapshot) => (
 					<div
 						{...provided.droppableProps}
