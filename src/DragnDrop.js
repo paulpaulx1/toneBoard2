@@ -137,7 +137,7 @@ export default function App ( props ) {
               top: placeholderProps.clientY,
               left: placeholderProps.clientX,
               height: placeholderProps.clientHeight,
-              background: "tomato",
+            //   background: "tomato",
               width: placeholderProps.clientWidth
             }}/>
 					</div>
