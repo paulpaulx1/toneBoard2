@@ -225,12 +225,16 @@ class App extends React.Component {
         //     1,
         //     Number(e.target.className.substr(1)),
         //     x
-        //   ),
+        // ),
+        let tempArray = this.state.colors.splice(Number(e.target.className), 1, e.target.style.background)
+        console.log(tempArray)
+        this.setState({...this.state, colors: tempArray})
         };
       
 
       for (let x of await document.getElementsByClassName(e.target.className)) {
         x.innerText = e.target.style.background;
+        // this.setState({...this.state, colors: this.state.colors.splice(Number(e.target.className), 1, e.target.style.background)})
       }
     } else {
       const color = this.formatColor(
@@ -278,26 +282,8 @@ class App extends React.Component {
     localStorage.clear();
     this.setState({ clearPalettes: !this.state.clearPalettes });
   }
-//  onDragUpdate = update => {
-//     if(!update.destination){
-//       return;
-//     }
-// 		const draggableId = update.draggableId;
-// 		const destinationIndex = update.destination.index;
 
-// 		const domQuery = `[${queryAttr}='${draggableId}']`;
-// 		const draggedDOM = document.querySelector(domQuery);
 
-// 		if (!draggedDOM) {
-// 			return;
-//     }
-//   }
-onDragEnd(result) {
-  // dropped outside the list
-  if (!result.destination) {
-    return;
-  }
-}
 
   stopMusic() {
     console.log(Tone);
@@ -312,7 +298,7 @@ onDragEnd(result) {
       <button
         type='button'
         key={index}
-        className={`h${index + 1}`}
+        className={`${index}`}
         style={{
           background: color,
           height: heights[index],
@@ -338,31 +324,28 @@ onDragEnd(result) {
       padding: '10px',
     };
 
-    let stripeMap = colors.map((color, index) => (
-      <div
-        key={nanoid}
-        style={{
-          background: color,
-          height: 50,
-          color: 'rgba(63, 63, 63, 0.884)',
-          fontFamily: 'Gill Sans',
-        }}
-      >{`${color}`}</div>
-    ));
+    // let stripeMap = colors.map((color, index) => (
+    //   <div
+    //     key={nanoid}
+    //     style={{
+    //       background: color,
+    //       height: 50,
+    //       color: 'rgba(63, 63, 63, 0.884)',
+    //       fontFamily: 'Gill Sans',
+    //     }}
+    //   >{`${color}`}</div>
+    // ));
     const localMap = Object.values(localStorage).slice().map((palette, index) =>
     
-    <DragDropContext >
-        <Droppable droppableId="characters">
-        {(provided, snapshot) => (
-    <div className="mapholder"  {...provided.droppableProps} 	ref={provided.innerRef}>
+    
+    <div className="mapholder"  >
 
      {palette.split('),').map((color, i) => (
        i !== 5 ? 
-          <Draggable key={nanoid()} draggableId={nanoid()} index={i} > 
-          {(provided, snapshot) =>
+         
           <div
             key={nanoid()}
-           ref={provided.innerRef}
+          
             classname='stripemaps'
             style={{
            
@@ -371,10 +354,9 @@ onDragEnd(result) {
           >
             {Object.keys(localStorage)[index]}<br/>{`${color})`}
         
-          </div>}</Draggable>
+          </div>
           :   
-          <Draggable key={nanoid()} draggableId={nanoid()} index={i} >
-             {(provided, snapshot) =><div
+         <div
           key={nanoid()}
     
           classname='stripemaps'
@@ -385,13 +367,11 @@ onDragEnd(result) {
         >
           {Object.keys(localStorage)[index]}<br/>{`${color}`}
       
-        </div>}</Draggable>
+        </div>
         
-    ))}  </div>)}
-    </Droppable>
-    </DragDropContext>
- 
-    );
+    ))}  </div>)
+   
+        
 
     return (
       <div className='App'>
@@ -488,7 +468,13 @@ onDragEnd(result) {
         </button>
 
         <header className='flex-container'>
-          <div>
+          <div className='flex-boi'>
+          <DragnDrop colors={this.state.colors} className='badboi' />
+          <div className='doublebadboi' >
+            {colorMap}
+            {colorMap}
+            {colorMap}
+            {colorMap}
             {colorMap}
             {/* {colorMap}
             {colorMap}
@@ -496,14 +482,17 @@ onDragEnd(result) {
             {colorMap}
             {colorMap}
             {colorMap} */}
+            </div>
           </div>
         </header>
         
         <div className="dragboiz">
-          <DragnDrop colors={this.state.colors}/>
+          {/* <DragnDrop colors={this.state.colors}/> */}
           <div/>
           <div className="mapflex">
+            <DragnDrop colors={localStorage.getItem(0)}/>
           {localMap}
+   
           </div>
       
         </div>

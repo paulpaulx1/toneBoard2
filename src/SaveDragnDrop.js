@@ -127,8 +127,10 @@ export default function App ( props ) {
 									>
 										{props.colors[index]}
 									</div>
+
 								)}
 							</Draggable>
+                            // <button onClick={()=>localStorage.setItem(colors)}
 						))}
 
 						{provided.placeholder}

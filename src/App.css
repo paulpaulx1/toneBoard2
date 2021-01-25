@@ -38,11 +38,24 @@ background: linear-gradient(90deg, rgba(121,180,58,1) 0%, rgba(253,29,29,0.22060
 }
 .flex-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   flex-wrap: wrap;
   align-content: stretch;
   justify-content: top;
   font-size: 12px;
+}
+
+.flex-boi {
+  display: flex;
+  justify-content: center;
+}
+.bad-boi{
+  width: 300px;
+}
+.doublebadboi {
+  padding-left: 90px;
+  display: flex;
+  flex-wrap: wrap;
 }
 /* .stripemaps { 
 
@@ -56,12 +69,12 @@ border: var(--outline);
 
 } */
 .mapflex {
-  /* display: flex;
+  display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   align-content: stretch;
   justify-content: top;
-  font-size: 12px; */
+  font-size: 12px;
 }
 .mapholder {
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
