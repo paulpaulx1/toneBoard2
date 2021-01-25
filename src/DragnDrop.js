@@ -107,9 +107,13 @@ export default function App ( props ) {
 					<div
 						{...provided.droppableProps}
 						ref={provided.innerRef}
-						style={getListStyle(snapshot.isDraggingOver)}
-					>drag... drop 
+                        style={getListStyle(snapshot.isDraggingOver)}
+                        
+					>
+                        drag... drop  {Object.values(localStorage).map((color, index)=>props.colors.join() === color ? Object.keys(localStorage)[index] :console.log(color, props.colors))}
 						{items.map((item, index) => (
+                           
+                            <>
 							<Draggable colors={props.colors} key={item.id} draggableId={item.id} index={index}>
 								{(provided, snapshot) => (
 									<div className="dragger"
@@ -129,6 +133,7 @@ export default function App ( props ) {
 									</div>
 								)}
 							</Draggable>
+                            </>
 						))}
 
 						{provided.placeholder}

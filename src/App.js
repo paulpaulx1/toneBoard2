@@ -511,10 +511,10 @@ class App extends React.Component {
           {/* <DragnDrop colors={this.state.colors}/> */}
           <div/>
           <div className="mapflex">
-            
-        {Object.values(localStorage).map((colorArray, index)=> <DragnDrop colors={colorArray.split('),').map((color, i)=>
-        i === colorArray.split('),').length -1? color : color+=")")} key={nanoid()} />)
-  }
+            <div></div>
+        {Object.values(localStorage).map((colorArray, index)=> <>HELLOOOO <DragnDrop colors={colorArray.split('),').map((color, i)=>
+        i === colorArray.split('),').length -1? color : color+=")")} key={nanoid()} />HELLLOOOOOOO</>)
+  }<div/>
           {localMap}
    
           </div>
