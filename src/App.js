@@ -226,9 +226,12 @@ class App extends React.Component {
         //     Number(e.target.className.substr(1)),
         //     x
         // ),
-        let tempArray = this.state.colors.splice(Number(e.target.className), 1, e.target.style.background)
+        let tempArray = this.state.colors
+        tempArray.splice(Number(e.target.className), 1, `${e.target.style.background}`)
         console.log(tempArray)
+        // console.log(this.state.colors.splice(Number(e.target.className), 1, 'HELLO'))
         this.setState({...this.state, colors: tempArray})
+  
         };
       
 
@@ -338,7 +341,7 @@ class App extends React.Component {
     const localMap = Object.values(localStorage).slice().map((palette, index) =>
     
     
-    <div className="mapholder"  >
+    <div className="mapholder" key={nanoid()}  >
 
      {palette.split('),').map((color, i) => (
        i !== 5 ? 
@@ -346,7 +349,7 @@ class App extends React.Component {
           <div
             key={nanoid()}
           
-            classname='stripemaps'
+            className='stripemaps'
             style={{
            
               background: `${color})`,
@@ -359,7 +362,7 @@ class App extends React.Component {
          <div
           key={nanoid()}
     
-          classname='stripemaps'
+          className='stripemaps'
           style={{
             
             background: `${color}`,
