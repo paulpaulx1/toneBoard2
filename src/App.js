@@ -49,11 +49,12 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      red: 220,
-      green: 220,
-      blue: 220,
+      red: 255,
+      green: 250,
+      blue: 250,
       alpha: 1,
       test: '',
+      backgroundText: '',
       nameArray: ['clicky', 'clicky', 'HELLO', 'XYOJ', 'jjj', 'clicky'],
       colors: [
         'transparent',
@@ -72,6 +73,7 @@ class App extends React.Component {
       setIsOpen: false,
       clearPalettes: false,
       reduce: false,
+      backgroundChange: false,
     };
     this.toggleModal = this.toggleModal.bind(this);
     this.afterOpenModal = this.afterOpenModal.bind(this);
@@ -170,30 +172,24 @@ class App extends React.Component {
     return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
   }
 
-  async changeBackgroundColor(e) {
-    const now = Tone.now();
+   async changeBackgroundColor(e) {
+    // const now = Tone.now();
 
     let randomNote = Math.floor(Math.random() * 7);
-    synth.triggerAttackRelease(notes[randomNote] + '4', '2n', now);
-    const diffRandomColor = () => {
-      if (this.state.pureColor === true) {
-        return (
-          '#' + (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)
-        );
-      } else {
-        return (
-          '#' +
-          (0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6) +
-          Math.floor(Math.random() * 100).toString()
-        );
-      }
-    };
-    let x = await diffRandomColor();
-    document.body.style.background = x;
-    if (this.state.printColors === true) {
-      e.target.innerText = 'background ' + x;
-    }
-  }
+    synth.triggerAttackRelease(notes[randomNote] + '4', .4);
+    await this.setState({...this.state, 
+      red: Math.floor(255 * Math.random()), 
+      green: Math.floor(255 * Math.random()), 
+      blue: Math.floor(255 * Math.random()),
+      alpha: this.state.pureColor === true? 1 : (this.randomizeValue() / 256).toFixed(2)})
+
+      await this.setState({...this.state, backgroundText: this.state.red+ this.state.green+ this.state.blue+ this.state.alpha})
+
+      e.target.innerText = 'background ' + this.state.backgroundText
+   
+    } 
+      
+  
 
   toggleColorPurity() {
     this.setState({
@@ -227,17 +223,9 @@ class App extends React.Component {
 
       for (var button of selectedButtons) {
         button.style.background = x;
-        // this.setState({
-        //   ...this.state,
-        //   colors: this.state.colors.splice(
-        //     1,
-        //     Number(e.target.className.substr(1)),
-        //     x
-        // ),
         let tempArray = this.state.colors
         tempArray.splice(Number(e.target.className), 1, `${e.target.style.background}`)
         console.log(tempArray)
-        // console.log(this.state.colors.splice(Number(e.target.className), 1, 'HELLO'))
         this.setState({...this.state, colors: tempArray})
   
         };
@@ -318,7 +306,7 @@ class App extends React.Component {
     const colorMap = colors.map((color, index) => (
       <button
         type='button'
-        key={index}
+        key={nanoid()}
         className={`${index}`}
         style={{
           background: color,
@@ -345,17 +333,6 @@ class App extends React.Component {
       padding: '10px',
     };
 
-    // let stripeMap = colors.map((color, index) => (
-    //   <div
-    //     key={nanoid}
-    //     style={{
-    //       background: color,
-    //       height: 50,
-    //       color: 'rgba(63, 63, 63, 0.884)',
-    //       fontFamily: 'Gill Sans',
-    //     }}
-    //   >{`${color}`}</div>
-    // ));
     const localMap = Object.values(localStorage).slice().map((palette, index) =>
     
     
@@ -396,10 +373,8 @@ class App extends React.Component {
 
     return (
       <div className='App'>
-        {/* <button style={styleObj} onClick={this.toggleModal}>
-          about
-        </button> */}
         <Modal
+        key={nanoid()}
           colors={this.state.colors}
           isOpen={this.state.modalIsOpen}
           onAfterOpen={this.afterOpenModal}
@@ -407,14 +382,15 @@ class App extends React.Component {
           style={{ background: document.body.style.background }}
           contentLabel='Example Modal'
         >
-          <h2 ref={(_subtitle) => (subtitle = _subtitle)}>
+          <h2 key={nanoid()} ref={(_subtitle) => (subtitle = _subtitle)}>
           </h2>
 
-          <div className='ModalStripeView'><DragnDrop colors={this.state.colors} grid={this.state.colors.length}/></div>
+          <div className='ModalStripeView'><DragnDrop key={nanoid()} colors={this.state.colors} grid={this.state.colors.length}/></div>
           <form>
             name palette :)
             <input id='textbox_id' />
             <button
+            key = {nanoid()}
               style={{ background: 'transparent' }}
               onClick={()=>localStorage.setItem(document.getElementById('textbox_id').value, this.state.colors)}
             >
@@ -434,6 +410,7 @@ class App extends React.Component {
               new color
             </button>
             <button
+            key={nanoid()}
               style={{ background: 'transparent' }}
               onClick={this.toggleModal}
             >
@@ -441,13 +418,14 @@ class App extends React.Component {
             </button>
           </form>
         </Modal>
-        <button style={styleObj} onClick={this.toggleModal}>
+        <button style={styleObj} key = {nanoid()} onClick={this.toggleModal}>
           save palette
         </button>
         <button
           className='changeOneColor'
           onClick={this.changeOneColor}
           style={styleObj}
+          key={nanoid()}
         >
           {this.state.selectorOn === true ? 'CHANGE ONE COLOR/cycle color' : 'CYCLE COLOR/change one color'}
         </button>
@@ -455,10 +433,12 @@ class App extends React.Component {
           className='changeOneColor'
           onClick={this.toggleColorPurity}
           style={styleObj}
+          key={nanoid()}
         >
           {this.state.pureColor === false ? 'TRANSLUCENT/opaque' : 'OPAQUE/translucent'}
         </button>
         <button
+        key={nanoid()}
           className='changeOneColor'
           onClick={this.addButton}
           style={styleObj}
@@ -466,6 +446,7 @@ class App extends React.Component {
           add button
         </button>
         <button
+        key={nanoid()}
           className='changeOneColor'
           onClick={()=>this.setState({...this.state, reduce: !this.state.reduce})}
           style={styleObj}
@@ -473,27 +454,26 @@ class App extends React.Component {
           {this.state.reduce === false ? 'remove color: off' : 'remove color: on'}
         </button>
         <button
+          key={nanoid()}
           className='changeOneColor'
           onClick={this.changeBackgroundColor}
           style={styleObj}
         >
-          {this.state.printColors === false
-            ? 'background'
-            : 'background ' + document.body.style.background}
+          {'background '}{<br/>}{this.formatColor(this.state.red, this.state.green, this.state.blue, this.state.alpha)}
         </button>
-        <button onClick={this.printColors} style={styleObj}>
+        <button onClick={this.printColors} style={styleObj} key={nanoid()}>
           print colors
         </button>
-        <button style={styleObj} onClick={() => this.clearPalettes()}>
+        <button style={styleObj} onClick={() => this.clearPalettes()} key={nanoid()}>
           clear palettes
         </button>
 
         <header className='flex-container'>   
-          <div className='flex-boi'>
+          <div key={nanoid()} className='flex-boi'>
       
-          <DragnDrop colors={this.state.colors} className='badboi' >DRAG AND DROP</DragnDrop>
+          <DragnDrop key={nanoid()} colors={this.state.colors} className='badboi' >DRAG AND DROP</DragnDrop>
           
-          <div className='doublebadboi' >
+          <div key = {nanoid()} className='doublebadboi' >
             {colorMap}
             {colorMap}
             {colorMap}
@@ -509,10 +489,10 @@ class App extends React.Component {
           </div>
         </header>
         
-        <div className="dragboiz">
+        <div key={nanoid()} className="dragboiz">
           {/* <DragnDrop colors={this.state.colors}/> */}
           <div/>
-          <div className="mapflex">
+          <div key={nanoid()} className="mapflex">
             {/* <div></div> */}
         {Object.values(localStorage).map((colorArray, index)=> <> <DragnDrop colors={colorArray.split('),').map((color, i)=>
         i === colorArray.split('),').length -1? color : color+=")")} key={nanoid()} /></>)

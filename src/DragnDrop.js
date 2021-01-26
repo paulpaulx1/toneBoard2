@@ -14,7 +14,8 @@ count =>
 		id: `item-${k}`,
 		content: `item ${k}`
     }));
-    
+
+// const getColors = props => {(Array.from(props.colors))}
 
 
 // a little function to help us with reordering the result
@@ -58,7 +59,7 @@ const queryAttr = "data-rbd-drag-handle-draggable-id";
 export default function App ( props ) {
 	const [placeholderProps, setPlaceholderProps] = useState({});
     const [items, setItems] = useState(getItems(props.colors ? props.colors.length : 6));
-    const [colors, setColors] = useState(props.colors)
+    const [colors, setColors] = useState((props.colors))
     // useEffect(() => {
     //    props.color
     //   });
