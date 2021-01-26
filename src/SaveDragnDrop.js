@@ -2,7 +2,7 @@ import React, { Component, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import * as Tone from 'tone';
-
+import { nanoid } from 'nanoid'
 
 // fake data generator
 const getItems = count =>
@@ -37,8 +37,8 @@ const getItemStyle = (isDragging, draggableStyle, colors, index) => ({
 	...draggableStyle
 });
 
-const getListStyle = isDraggingOver => ({
-	background: 'transparent',
+const getListStyle = (isDraggingOver, props) => ({
+	background: props.background,
 	padding: grid,
   width: 250,
   position: "relative"
@@ -102,13 +102,13 @@ export default function App ( props ) {
 	// But in this example everything is just done in one place for simplicity
 	return (
         props.colors ?
-		<DragDropContext colors={props.colors} onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
+		<DragDropContext colors={props.colors} background={props.background} onDragEnd={onDragEnd} onDragUpdate={onDragUpdate}>
 			<Droppable key={nanoid()} colors={props.colors} droppableId="droppable">
 				{(provided, snapshot) => (
-					<div
+					<div key={nanoid()}
 						{...provided.droppableProps}
 						ref={provided.innerRef}
-						style={getListStyle(snapshot.isDraggingOver)}
+						style={getListStyle(snapshot.isDraggingOver, props)}
 					>drag... drop 
 						{items.map((item, index) => (
 							<Draggable colors={props.colors} key={item.id} draggableId={item.id} index={index}>

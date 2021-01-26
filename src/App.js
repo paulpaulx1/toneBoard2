@@ -471,7 +471,7 @@ class App extends React.Component {
         <header className='flex-container'>   
           <div key={nanoid()} className='flex-boi'>
       
-          <DragnDrop key={nanoid()} colors={this.state.colors} className='badboi' >DRAG AND DROP</DragnDrop>
+          <DragnDrop key={nanoid()} colors={this.state.colors} background={this.formatColor(this.state.red, this.state.green, this.state.blue, this.state.alpha)}className='badboi' >DRAG AND DROP</DragnDrop>
           
           <div key = {nanoid()} className='doublebadboi' >
             {colorMap}
